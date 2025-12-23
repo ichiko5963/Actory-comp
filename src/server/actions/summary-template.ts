@@ -29,11 +29,13 @@ export async function getSummaryTemplates() {
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         // システムデフォルトとユーザー独自のテンプレートを取得
         const templates = await db.query.summaryTemplates.findMany({
             where: (templates, { or, eq, isNull }) => or(
-                eq(templates.userId, session.user.id),
+                eq(templates.userId, userId),
                 isNull(templates.userId)
             ),
             orderBy: (templates, { desc, asc }) => [
@@ -80,12 +82,14 @@ export async function createSummaryTemplate(
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         // デフォルトテンプレートを設定する場合、既存のデフォルトを解除
         if (isDefault) {
             await db.update(summaryTemplates)
                 .set({ isDefault: false })
-                .where(eq(summaryTemplates.userId, session.user.id));
+                .where(eq(summaryTemplates.userId, userId));
         }
 
         const [inserted] = await db.insert(summaryTemplates).values({
@@ -124,20 +128,22 @@ export async function updateSummaryTemplate(
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         const existing = await db.query.summaryTemplates.findFirst({
             where: eq(summaryTemplates.id, templateId),
         });
 
-        if (!existing || (existing.userId !== session.user.id && existing.userId !== null)) {
+        if (!existing || (existing.userId !== userId && existing.userId !== null)) {
             return { success: false, error: 'Template not found or unauthorized' };
         }
 
         // デフォルトテンプレートを設定する場合、既存のデフォルトを解除
-        if (isDefault && existing.userId === session.user.id) {
+        if (isDefault && existing.userId === userId) {
             await db.update(summaryTemplates)
                 .set({ isDefault: false })
-                .where(eq(summaryTemplates.userId, session.user.id));
+                .where(eq(summaryTemplates.userId, userId));
         }
 
         await db.update(summaryTemplates)
@@ -170,12 +176,14 @@ export async function deleteSummaryTemplate(templateId: number): Promise<{ succe
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         const existing = await db.query.summaryTemplates.findFirst({
             where: eq(summaryTemplates.id, templateId),
         });
 
-        if (!existing || existing.userId !== session.user.id) {
+        if (!existing || existing.userId !== userId) {
             return { success: false, error: 'Template not found or unauthorized' };
         }
 
@@ -200,11 +208,13 @@ export async function getDefaultSummaryTemplate() {
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         // ユーザーのデフォルトテンプレートを探す
         const userDefault = await db.query.summaryTemplates.findFirst({
             where: (templates, { and, eq }) => and(
-                eq(templates.userId, session.user.id),
+                eq(templates.userId, userId),
                 eq(templates.isDefault, true)
             ),
         });

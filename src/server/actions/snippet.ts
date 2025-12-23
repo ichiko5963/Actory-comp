@@ -92,6 +92,8 @@ export async function updateSnippet(
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         const existing = await db.query.snippets.findFirst({
             where: eq(snippets.id, snippetId),
@@ -124,6 +126,8 @@ export async function deleteSnippet(snippetId: number): Promise<{ success: boole
     if (!session?.user?.id) {
         return { success: false, error: 'Unauthorized' };
     }
+
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
 
     try {
         const existing = await db.query.snippets.findFirst({

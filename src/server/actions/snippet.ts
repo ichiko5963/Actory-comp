@@ -46,10 +46,12 @@ export async function getSnippets(noteId?: number) {
         return { success: false, error: 'Unauthorized' };
     }
 
+    const userId = session.user.id; // TypeScriptの型チェックを確実にするため
+
     try {
         const snippetList = await db.query.snippets.findMany({
             where: (snippets, { and, eq }) => {
-                const conditions = [eq(snippets.userId, session.user.id)];
+                const conditions = [eq(snippets.userId, userId)];
                 if (noteId) {
                     conditions.push(eq(snippets.noteId, noteId));
                 }
@@ -95,7 +97,7 @@ export async function updateSnippet(
             where: eq(snippets.id, snippetId),
         });
 
-        if (!existing || existing.userId !== session.user.id) {
+        if (!existing || existing.userId !== userId) {
             return { success: false, error: 'Snippet not found or unauthorized' };
         }
 
@@ -128,7 +130,7 @@ export async function deleteSnippet(snippetId: number): Promise<{ success: boole
             where: eq(snippets.id, snippetId),
         });
 
-        if (!existing || existing.userId !== session.user.id) {
+        if (!existing || existing.userId !== userId) {
             return { success: false, error: 'Snippet not found or unauthorized' };
         }
 

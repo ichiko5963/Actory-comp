@@ -89,7 +89,7 @@ export async function createSummaryTemplate(
         }
 
         const [inserted] = await db.insert(summaryTemplates).values({
-            userId: session.user.id,
+            userId: userId,
             name,
             description: description || null,
             prompt,

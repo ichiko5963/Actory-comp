@@ -70,6 +70,17 @@ export function PlanGate() {
     if (!canSubmit) return;
     localStorage.setItem("actoryModeSelection", JSON.stringify(selection));
     applyMode(selection);
+    // 個人モード選択時は初期コンテキストを自動作成
+    if (selection.personal && selection.businessName.trim().length > 0) {
+      fetch("/api/onboarding/plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          planType: "personal",
+          businessName: selection.businessName.trim(),
+        }),
+      }).catch((e) => console.error("Failed to create initial context:", e));
+    }
     setShow(false);
     document.body.classList.remove("gate-open");
   };
